@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>¿Es buen momento para llamar a Blanca?</title>
+<script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+<style>
+  body {
+    margin: 0; padding: 0;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    height: 100vh; color: white; text-align: center;
+    font-family: Arial, sans-serif;
+    transition: background-color 0.5s ease;
+  }
+  h1 { font-size: 2.2rem; margin-bottom: 0.5em; }
+  p { font-size: 1.2rem; margin: 0.2em; }
+</style>
+</head>
+<body>
+  <h1 id="status">Cargando…</h1>
+  <p id="activity"></p>
+  <p id="times"></p>
+
+<script>
+const { DateTime } = luxon;
+
+const schedule = [
+  { start:"06:00", end:"06:30", activity:"Preparándose para entrenar", color:"orange" },
+  { start:"06:30", end:"08:30", activity:"Entrenamiento mañana",      color:"red" },
+  { start:"08:30", end:"09:00", activity:"Ducha",                     color:"orange" },
+  { start:"09:00", end:"09:30", activity:"Desayuno",                  color:"green" },
+  { start:"09:30", end:"11:00", activity:"Descanso",                  color:"green" },
+  { start:"11:00", end:"11:45", activity:"Comida",                    color:"green" },
+  { start:"11:45", end:"12:30", activity:"Descanso",                  color:"green" },
+  { start:"12:30", end:"13:00", activity:"Preparándose para dormir",  color:"orange" },
+  { start:"13:00", end:"14:00", activity:"Siesta",                    color:"red" },
+  { start:"14:00", end:"15:00", activity:"Descanso",                  color:"green" },
+  { start:"15:00", end:"18:30", activity:"Entrenamiento tarde",       color:"red" },
+  { start:"18:30", end:"19:00", activity:"Ducha",                     color:"orange" },
+  { start:"19:00", end:"19:45", activity:"Cena",                      color:"green" },
+  { start:"19:45", end:"20:30", activity:"Descanso",                  color:"green" },
+  { start:"20:30", end:"21:00", activity:"Preparándose para dormir",  color:"orange" },
+  { start:"21:00", end:"06:00", activity:"Durmiendo",                 color:"red" }
+];
+
+function updateStatus() {
+  const nowTH = DateTime.now().setZone('Asia/Bangkok');
+  let current = schedule.find(block => {
+    const start = DateTime.fromFormat(block.start, "HH:mm", {zone:"Asia/Bangkok"});
+    const end   = DateTime.fromFormat(block.end, "HH:mm", {zone:"Asia/Bangkok"});
+    // manejar bloque que cruza medianoche
+    if (end < start) {
+      return (nowTH >= start || nowTH < end.plus({days:1}));
+    } else {
+      return nowTH >= start && nowTH < end;
+    }
+  });
+
+  if (current) {
+    document.body.style.backgroundColor = current.color;
+    document.getElementById('status').textContent =
+      current.color === "green" ? "¡Buen momento para llamar!"
+      : current.color === "orange" ? "Podría contestar, está medio ocupada"
+      : "No es buen momento para llamar";
+    document.getElementById('activity').textContent =
+      "Actividad actual: " + current.activity;
+  }
+
+  const nowES = nowTH.setZone('Europe/Madrid');
+  document.getElementById('times').textContent =
+    `Hora en Tailandia: ${nowTH.toFormat('HH:mm')}  |  Hora en España: ${nowES.toFormat('HH:mm')}`;
+}
+
+updateStatus();
+setInterval(updateStatus, 60000);
+</script>
+</body>
+</html>
