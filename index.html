@@ -16,12 +16,21 @@
   }
   h1 { font-size: 2.2rem; margin-bottom: 0.5em; }
   p { font-size: 1.2rem; margin: 0.2em; }
+  #full-schedule { margin-top: 1.5em; font-size: 1rem; line-height: 1.4; max-width: 90%; }
+  #full-schedule h2 { font-size: 1.3rem; margin-bottom: 0.5em; }
+  #full-schedule ul { list-style: none; padding: 0; }
+  #full-schedule li { margin: 0.3em 0; }
 </style>
 </head>
 <body>
   <h1 id="status">Cargando…</h1>
   <p id="activity"></p>
   <p id="times"></p>
+
+  <div id="full-schedule">
+    <h2>Horario completo</h2>
+    <ul id="schedule-list"></ul>
+  </div>
 
 <script>
 const { DateTime } = luxon;
@@ -73,6 +82,16 @@ function updateStatus() {
     `Hora en Tailandia: ${nowTH.toFormat('HH:mm')}  |  Hora en España: ${nowES.toFormat('HH:mm')}`;
 }
 
+function renderSchedule() {
+  const list = document.getElementById('schedule-list');
+  schedule.forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = `${item.start} - ${item.end}: ${item.activity}`;
+    list.appendChild(li);
+  });
+}
+
+renderSchedule();
 updateStatus();
 setInterval(updateStatus, 60000);
 </script>
